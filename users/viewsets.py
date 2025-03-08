@@ -66,8 +66,6 @@ class RegisterViewSet(viewsets.ViewSet):
 
         return Response(serializer.data)
 
-
-
 class AuthTokenViewset(viewsets.ViewSet):
 
     http_method_names = ['post', 'options', 'head']
@@ -128,3 +126,27 @@ class LogoutViewset(viewsets.ViewSet):
         except Exception as e:
             print('entrando a exception')
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+class TokenRefreshViewSet(viewsets.ViewSet):
+    permission_classes = [AllowAny]
+
+    def create(self, request):
+        try:
+            refresh_token = request.data.get('refresh')
+            if not refresh_token:
+                return Response({'error': 'Refresh token is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+            refresh = CustomRefreshToken(refresh_token)
+            refresh.verify()
+            access_token = refresh.get_new_access_token()
+
+            data = {
+                'access': access_token,
+                'refresh': str(refresh)
+            }
+            return Response(data, status=status.HTTP_200_OK)
+        except TokenError as e:
+             return Response({'error': 'Refresh token is invalid.'},
+                                status=status.HTTP_401_UNAUTHORIZED)
+        except Exception as e:
+            return Response({'error': f'Unexpected error occurred: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
