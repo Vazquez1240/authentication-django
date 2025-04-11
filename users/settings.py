@@ -10,7 +10,7 @@ class UsersAuthSettings:
         self.defaults = defaults or DEFAULTS
 
     def __getattr__(self, attr):
-        if hasattr(settings, "USERS_AUTH"):
+        if hasattr(settings, "DJANGO_USERS_AUTH_TOKEN"):
             return settings.USERS_AUTH.get(attr, self.defaults.get(attr))
         return self.defaults.get(attr)
 
