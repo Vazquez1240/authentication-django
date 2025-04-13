@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="django-users-auth",
-    version="2.3.8",
+    version="2.3.9",
     packages=find_packages(include=["users", "users.*", "base", "base.*", "imagenes", "imagenes.*"]),
     install_requires=[
         "django>=4.2",

@@ -8,11 +8,13 @@ from users.models import User
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, validators=[validate_password])
     username = serializers.CharField(write_only=True)
-    uuid = serializers.CharField()
+    uuid = serializers.CharField(read_only=True)  # mejor que sea read_only, ya que se genera automáticamente
+
+    rol_usuario = serializers.ChoiceField(choices=User.Roles.choices, default=User.Roles.USUARIO_NORMAL)
 
     class Meta:
         model = get_user_model()
-        fields = ['username', 'email', 'password', 'uuid']
+        fields = ['username', 'email', 'password', 'uuid', 'rol_usuario']
         extra_kwargs = {
             'password': {'write_only': True},
         }
@@ -23,11 +25,11 @@ class UserSerializer(serializers.ModelSerializer):
         return data
 
     def create(self, validated_data):
-
         user = get_user_model().objects.create_user(
             username=validated_data['username'],
             email=validated_data['email'],
-            password=validated_data['password']
+            password=validated_data['password'],
+            rol_usuario=validated_data.get('rol_usuario', User.Roles.USUARIO_NORMAL),
         )
         return user
 
@@ -41,5 +43,6 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         token['is_staff'] = user.is_staff
         token['user_id'] = user.id
         token['uuid'] = str(user.uuid)
+        token['rol_usuario'] = user.rol_usuario
 
         return token

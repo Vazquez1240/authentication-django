@@ -11,9 +11,21 @@ username_validator = UnicodeUsernameValidator()
 
 # Create your models here.
 class User(AbstractUser):
+    class Roles(models.TextChoices):
+        PROFESOR = 'profesor', 'Profesor'
+        DIRECTOR = 'director', 'Director'
+        ESTUDIANTE = 'estudiante', 'Estudiante'
+        USUARIO_NORMAL = 'usuario_normal', 'Usuario normal'
+
+
     id = models.AutoField(primary_key=True)
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     email = models.EmailField(unique=True)
+    rol_usuario = models.CharField(
+        max_length=20,
+        choices=Roles.choices,
+        default=Roles.USUARIO_NORMAL
+    )
     username = models.CharField(
         "username",
         max_length=150,
